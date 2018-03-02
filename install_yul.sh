@@ -40,4 +40,4 @@ sudo pip3 install mutagen
 
 sudo sed -i -- "s/^exit 0/amixer cset numid=3 1\\nexit 0/g" /etc/rc.local
 sudo sed -i -- "s/^exit 0/darkice \&\\nexit 0/g" /etc/rc.local
-sudo sed -i -- "s/^exit 0/(cd \/home\/pi\/RPi-Echo \&\& python3 main.py)\&\\nexit 0/g" /etc/rc.local
+sudo sed -i -- "s/^exit 0/(cd \/home\/pi\/echoberry \&\& python3 main.py)\&\\nexit 0/g" /etc/rc.local

@@ -1,3 +1,4 @@
+import datetime
 import threading
 import os
 import sys
@@ -7,6 +8,10 @@ import time
 from utils import kill_process_by_name
 import RPi.GPIO as GPIO
 from constant import *
+
+
+cur_dir = os.path.dirname(os.path.realpath(__file__))
+ring_path = os.path.join(cur_dir, RING_FILE)
 
 
 class RPiEcho(threading.Thread):
@@ -21,12 +26,12 @@ class RPiEcho(threading.Thread):
             time.sleep(1)
 
     def on_switch_opened(self, *args):
+        print('{}:: Switch is opened!'.format(datetime.datetime.now()))
         if self.state == 'idle':
             self.state = 'active'
             # Play the ring audio
-            subprocess.Popen('omxplayer -o local {}'.format(RING_FILE), shell=True,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            audio = MP3(RING_FILE)
+            subprocess.Popen('omxplayer -o local {}'.format(ring_path), shell=True)
+            audio = MP3(ring_path)
             time.sleep(audio.info.length)
 
             # Start streaming
@@ -34,6 +39,7 @@ class RPiEcho(threading.Thread):
             subprocess.Popen('mplayer http://54.89.215.33:8000/echoberry-ydf', shell=True)
 
     def on_switch_closed(self, *args):
+        print('{}:: Switch is closed.'.format(datetime.datetime.now()))
         self.state = 'idle'
         kill_process_by_name('omxplayer')
         kill_process_by_name('darkice')
