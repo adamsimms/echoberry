@@ -69,6 +69,10 @@ https://www.figma.com/file/Qq94FUIBFmaFRzEGjnB09grI/Echo?node-id=1%3A2
 - YUL
     
         mplayer http://54.89.215.33:8000/echoberry-yul
+    
+    *NOTE* If you want to hear with USB headset, use this:
+        
+        mplayer -ao alsa:device=hw=1.0 http://54.89.215.33:8000/echoberry-yul
 
 - YDF
     
