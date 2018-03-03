@@ -36,7 +36,7 @@ class RPiEcho(threading.Thread):
 
             # Start streaming
             subprocess.Popen('darkice', shell=True)
-            subprocess.Popen('mplayer http://54.89.215.33:8000/echoberry-ydf', shell=True)
+            subprocess.Popen('mplayer -ao alsa:device=hw=1.0 http://54.89.215.33:8000/echoberry-ydf', shell=True)
 
     def on_switch_closed(self, *args):
         print('{}:: Switch is closed.'.format(datetime.datetime.now()))
