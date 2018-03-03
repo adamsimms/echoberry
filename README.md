@@ -63,6 +63,17 @@ https://www.figma.com/file/Qq94FUIBFmaFRzEGjnB09grI/Echo?node-id=1%3A2
     cd ~/echoberry
     bash install_ydf.sh
 
+## Stream audio to the server.
+
+- YUL
+        
+        cd /home/pi/echoberry
+        ffmpeg -ac 1 -re -f alsa -i hw:1,0 -re -i sounds/forest_reduced15db.mp3 -filter_complex amerge=inputs=2 -f mp3 icecast://source:MyAdminPassword@54.89.215.33:8000/echoberry-yul
+
+- YDF
+        
+        sudo darkice
+
 
 ## Listen to Stream
 
