@@ -5,7 +5,8 @@ sudo cp ${cur_dir}/conf/darkice-ydf.cfg /etc/darkice.cfg
 
 sudo apt-get update
 sudo apt-get -y install unzip autoconf libtool libtool-bin checkinstall libssl-dev libasound2-dev \
-                libmp3lame-dev libpulse-dev alsa-utils avahi-daemon mplayer ffmpeg
+                libmp3lame-dev libpulse-dev alsa-utils avahi-daemon mplayer
+sudo apt-get install -y ffmpeg
 
 cd /tmp
 wget http://tipok.org.ua/downloads/media/aacplus/libaacplus/libaacplus-2.0.2.tar.gz
