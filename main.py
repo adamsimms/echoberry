@@ -28,7 +28,13 @@ class RPiEcho(threading.Thread):
         while True:
             time.sleep(1)
 
-    def on_switch_opened(self, *args):
+    def on_switch_event(self, *args):
+        if GPIO.input(SWITCH_PIN):
+            self.on_switch_opened()
+        else:
+            self.on_switch_closed()
+
+    def on_switch_opened(self):
         print('{}:: Switch is opened!'.format(datetime.datetime.now()))
         if self.state == 'idle':
             self.state = 'active'
@@ -41,7 +47,7 @@ class RPiEcho(threading.Thread):
             subprocess.Popen(CMD, shell=True)
             subprocess.Popen('mplayer -ao alsa:device=hw=1.0 http://54.89.215.33:8000/echoberry-ydf', shell=True)
 
-    def on_switch_closed(self, *args):
+    def on_switch_closed(self):
         print('{}:: Switch is closed.'.format(datetime.datetime.now()))
         self.state = 'idle'
         kill_process_by_name('omxplayer')
@@ -66,7 +72,6 @@ if __name__ == '__main__':
 
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(SWITCH_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(SWITCH_PIN, GPIO.RISING, callback=echo.on_switch_opened, bouncetime=200)
-    GPIO.add_event_detect(SWITCH_PIN, GPIO.FALLING, callback=echo.on_switch_closed, bouncetime=200)
+    GPIO.add_event_detect(SWITCH_PIN, GPIO.BOTH, callback=echo.on_switch_event, bouncetime=200)
 
     echo.start()
