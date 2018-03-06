@@ -10,4 +10,7 @@ def kill_process_by_name(proc_name):
         if proc_name in line:
             pid = int(line.split(None, 1)[0])
             print('Found PID({}) of `{}`, killing...'.format(pid, proc_name))
-            os.kill(pid, signal.SIGKILL)
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
