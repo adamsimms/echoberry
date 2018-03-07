@@ -13,7 +13,7 @@ from constant import *
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 ring_path = os.path.join(cur_dir, RING_FILE)
 
-CMD = 'ffmpeg -ac 1 -re -f alsa -i hw:1,0 -re -i {} -filter_complex amerge=inputs=2 -f mp3 -af aecho=0.8:0.9:1000:0.3' \
+CMD = 'ffmpeg -ac 1 -re -f alsa -i hw:1,0 -re -i {} -filter_complex amerge=inputs=2 -f mp3 ' \
       'icecast://source:{}@54.89.215.33:8000/echoberry-yul'.format(FOREST_SOUND_FILE, ICECAST_PASSWORD)
 
 
@@ -44,6 +44,7 @@ class RPiEcho(threading.Thread):
             time.sleep(audio.info.length)
 
             # Start streaming
+            print("Audio Stream - {}".format(CMD))
             subprocess.Popen(CMD, shell=True)
             subprocess.Popen('mplayer -ao alsa:device=hw=1.0 http://54.89.215.33:8000/echoberry-ydf', shell=True)
 
