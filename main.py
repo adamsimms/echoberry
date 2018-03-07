@@ -35,21 +35,21 @@ class RPiEcho(threading.Thread):
             self.on_switch_closed()
 
     def on_switch_opened(self):
-        print('{}:: Switch is opened!'.format(datetime.datetime.now()))
+        print('>>> {}:: Switch is opened!'.format(datetime.datetime.now()))
         if self.state == 'idle':
             self.state = 'active'
             # Play the ring audio
             subprocess.Popen('mplayer -ao alsa:device=hw=1.0 {}'.format(ring_path), shell=True)
             audio = MP3(ring_path)
             time.sleep(audio.info.length)
-
+            kill_process_by_name('mplayer')
             # Start streaming
-            print("Audio Stream - {}".format(CMD))
+            print(">>> {}:: Audio Stream - {}".format(datetime.datetime.now(), CMD))
             subprocess.Popen(CMD, shell=True)
             subprocess.Popen('mplayer -ao alsa:device=hw=1.0 http://54.89.215.33:8000/echoberry-ydf', shell=True)
 
     def on_switch_closed(self):
-        print('{}:: Switch is closed.'.format(datetime.datetime.now()))
+        print('>>> {}:: Switch is closed.'.format(datetime.datetime.now()))
         self.state = 'idle'
         kill_process_by_name('omxplayer')
         kill_process_by_name('ffmpeg')
