@@ -28,3 +28,6 @@ ffmpeg -ac 1 -re -f alsa -i hw:1,0 -af "aecho=0.8:0.88:100:1" -re -i sounds/fore
 ffmpeg -ac 1 -re -f alsa -i hw:1,0 -re -i sounds/forest_reduced5db.mp3 -filter_complex amerge=inputs=2 -f mp3 icecast://source:MyAdminPassword@54.89.215.33:8000/echoberry-yul
 
 mplayer -ao alsa:device=hw=1.0 http://54.89.215.33:8000/echoberry-yul
+
+
+
