@@ -90,3 +90,12 @@ https://www.figma.com/file/Qq94FUIBFmaFRzEGjnB09grI/Echo?node-id=1%3A2
         mplayer http://54.89.215.33:8000/echoberry-ydf
 
 Now, reboot!
+
+## USB LTE Stick
+- 192.168.1.1
+- Username: admin
+- Password: M0n0chr0m3
+
+- SSID: echoberry
+- Password: M0n0chr0m3
+
