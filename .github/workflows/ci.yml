@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [master, 'cursor/**']
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: pip install PyYAML
+
+      - name: Compile Python sources
+        run: python3 -m py_compile src/*.py scripts/*.py
+
+      - name: Validate example config
+        run: python3 scripts/validate_config.py
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Shellcheck install scripts
+        run: shellcheck scripts/*.sh

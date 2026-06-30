@@ -1,0 +1,15 @@
+[Unit]
+Description=EchoBerry magnetic switch controller (YUL)
+After=network-online.target sound.target darkice.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/echoberry/install.env
+WorkingDirectory=${ECHOBERY_ROOT}
+ExecStart=${ECHOBERY_VENV_PYTHON} ${ECHOBERY_ROOT}/src/main.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
