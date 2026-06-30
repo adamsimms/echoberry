@@ -27,4 +27,5 @@ description     = __DARKICE_DESCRIPTION__
 url             = http://rpi.echo.com
 genre           = echoberry
 public          = no
+# Intentional local archive of the live stream for the installation.
 localDumpFile   = recording.m4a

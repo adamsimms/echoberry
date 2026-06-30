@@ -1,6 +1,8 @@
 # RPi Echo (EchoBerry)
 
-An interactive audio installation: a magnetic switch on a Raspberry Pi triggers a ring tone, then streams live microphone audio mixed with forest ambience to an Icecast server. Two locations (YUL and YDF) can listen to each other's streams.
+An interactive audio installation (2021): a magnetic switch on a Raspberry Pi triggers a ring tone, then streams live microphone audio mixed with forest ambience to an Icecast server. Two locations (YUL and YDF) can listen to each other's streams.
+
+> **Note:** This project documents a completed art installation. It is maintained for archival and redeployment reference, not active product development.
 
 Design reference: [Figma — Echo](https://www.figma.com/file/Qq94FUIBFmaFRzEGjnB09grI/Echo?node-id=1%3A2)
 
@@ -19,10 +21,12 @@ echoberry/
 ├── src/
 │   ├── main.py           # YUL switch controller
 │   ├── config.py
+│   ├── audio_player.py
 │   └── utils.py
 ├── scripts/
 │   ├── install.sh        # unified installer (yul | ydf)
 │   ├── render_configs.py
+│   ├── validate_config.py
 │   └── render_icecast.sh
 ├── conf/                 # templates + rendered configs (gitignored outputs)
 ├── systemd/
@@ -41,7 +45,7 @@ cp config.example.yaml config.yaml
 # Edit config.yaml: set server host, passwords, and location (yul or ydf)
 ```
 
-Never commit `config.yaml` — it contains secrets.
+Never commit `config.yaml` — it contains secrets. The application refuses to start without a deployed `config.yaml`.
 
 ### 2. Set up the Icecast server
 
@@ -69,6 +73,7 @@ Use [Raspberry Pi OS](https://www.raspberrypi.com/software/) (Lite is fine).
 cd ~
 git clone https://github.com/adamsimms/echoberry
 cd echoberry
+git lfs install && git lfs pull
 cp config.example.yaml config.yaml
 # edit config.yaml
 ```
@@ -85,12 +90,14 @@ bash scripts/install.sh yul
 bash scripts/install.sh ydf
 ```
 
+`install.sh` syncs `config.yaml` `location` to match the install target and writes `/etc/echoberry/*.env` for systemd.
+
 ### 4. Manual streaming (debug)
 
-Stream mic + forest ambience to YUL mount:
+Stream mic + looping forest ambience to YUL mount:
 
 ```bash
-ffmpeg -ac 1 -re -f alsa -i hw:1,0 -re -i sounds/forest_1h.mp3 \
+ffmpeg -ac 1 -re -f alsa -i hw:1,0 -stream_loop -1 -re -i sounds/forest_1h.mp3 \
   -filter_complex amerge=inputs=2 -f mp3 \
   icecast://source:<password>@<host>:<port>/echoberry-yul
 ```
@@ -118,18 +125,51 @@ sudo systemctl status darkice echoberry          # YUL
 sudo systemctl status darkice echoberry-listener # YDF
 ```
 
+### YUL dual streaming (intentional)
+
+At YUL, **both** `darkice` and the switch-triggered `ffmpeg` stream target the same mount. This is deliberate for the installation: darkice provides a continuous baseline mic feed, while opening the switch layers ring + forest ambience via ffmpeg.
+
+### Darkice local recording (intentional)
+
+`darkice` writes `recording.m4a` locally as an archive of the live stream. This is intentional for the art installation.
+
 ## Audio assets
 
 - `sounds/ring.mp3` — played locally when the switch opens
-- `sounds/forest_1h.mp3` — mixed under the live mic stream (~83 MB, tracked via Git LFS)
+- `sounds/forest_1h.mp3` — mixed under the live mic stream, looped indefinitely (~83 MB, Git LFS)
 
-If Git LFS is not installed: `git lfs install && git lfs pull`
+Forest looping is controlled by `audio.forest_stream_loop` in `config.yaml` (default `-1` = infinite).
 
-## Security notes
+## Configuration
 
-- **Do not commit** private keys, PEM files, or `config.yaml`.
-- Rotate any credentials that were previously committed to this repository.
-- The old `Echo-Server.pem` has been removed and purged from git history; rotate the key on the server if it was ever exposed.
+Key `config.yaml` fields:
+
+| Key | Purpose |
+|-----|---------|
+| `location` | Active site (`yul` or `ydf`); synced by `install.sh` |
+| `server.*` | Icecast host, port, passwords |
+| `audio.alsa_device` | Capture device for mic/forest mix |
+| `audio.playback_device` | Local playback device (`hw=1.0`) |
+| `install.repo_root` | Install path (auto-set by `install.sh`) |
+| `install.amixer_analog_cmd` | Pi analogue audio routing command |
+
+## Security
+
+See [SECURITY.md](SECURITY.md). Summary:
+
+- Do not commit private keys, PEM files, or `config.yaml`.
+- Rotate credentials that were previously in git.
+- Purge `Echo-Server.pem` from `master` history if the repo was ever public.
+
+## Development
+
+```bash
+pip install PyYAML mutagen
+python3 -m py_compile src/*.py scripts/*.py
+python3 scripts/validate_config.py
+```
+
+CI runs the same checks on push/PR.
 
 ## Legacy install
 
@@ -137,4 +177,8 @@ If Git LFS is not installed: `git lfs install && git lfs pull`
 
 ## Documentation photos
 
-See `docs/documentation/` for wiring and installation reference images.
+See [docs/documentation/README.md](docs/documentation/README.md) for captions.
+
+## License
+
+[MIT](LICENSE)

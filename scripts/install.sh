@@ -9,11 +9,23 @@ fi
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
+VENV="$REPO_ROOT/.venv"
 
 if [[ ! -f "$REPO_ROOT/config.yaml" ]]; then
     echo "Copy config.example.yaml to config.yaml and edit it before installing."
     exit 1
 fi
+
+# Record install path in config so systemd units can reference it.
+python3 - <<PY
+import yaml
+from pathlib import Path
+
+config_path = Path("$REPO_ROOT/config.yaml")
+config = yaml.safe_load(config_path.read_text())
+config.setdefault("install", {})["repo_root"] = "$REPO_ROOT"
+config_path.write_text(yaml.safe_dump(config, sort_keys=False))
+PY
 
 echo "==> Installing system packages"
 sudo apt-get update
@@ -26,32 +38,26 @@ sudo apt-get -y install \
     mplayer \
     python3 \
     python3-pip \
-    python3-dev \
+    python3-venv \
     python3-yaml
 
-echo "==> Installing Python dependencies"
-sudo pip3 install -r "$REPO_ROOT/requirements.txt"
+echo "==> Creating Python virtualenv"
+python3 -m venv "$VENV"
+"$VENV/bin/pip" install --upgrade pip
+"$VENV/bin/pip" install -r "$REPO_ROOT/requirements.txt"
 
 echo "==> Rendering configs for location: $LOCATION"
-python3 "$REPO_ROOT/scripts/render_configs.py" "$LOCATION"
+PYTHONPATH="$REPO_ROOT/src" "$VENV/bin/python" "$REPO_ROOT/scripts/render_configs.py" "$LOCATION" --sync-location
 sudo cp "$REPO_ROOT/conf/darkice.cfg" /etc/darkice.cfg
 
-echo "==> Installing systemd units"
+echo "==> Installing systemd units and environment files"
 sudo mkdir -p /etc/echoberry
+sudo cp "$REPO_ROOT/conf/install.env" /etc/echoberry/install.env
+sudo cp "$REPO_ROOT/conf/listener.env" /etc/echoberry/listener.env
 sudo cp "$REPO_ROOT/systemd/darkice.service" /etc/systemd/system/darkice.service
 sudo systemctl daemon-reload
 sudo systemctl enable darkice.service
 sudo systemctl restart darkice.service
-
-PLAYBACK_DEVICE="$(python3 -c "import yaml; c=yaml.safe_load(open('$REPO_ROOT/config.yaml')); print(c['audio']['playback_device'])")"
-LISTEN_MOUNT="$(python3 -c "import yaml; c=yaml.safe_load(open('$REPO_ROOT/config.yaml')); print(c['locations']['$LOCATION']['listen_mount'])")"
-SERVER_HOST="$(python3 -c "import yaml; c=yaml.safe_load(open('$REPO_ROOT/config.yaml')); print(c['server']['host'])")"
-SERVER_PORT="$(python3 -c "import yaml; c=yaml.safe_load(open('$REPO_ROOT/config.yaml')); print(c['server']['port'])")"
-
-sudo tee /etc/echoberry/listener.env > /dev/null <<EOF
-ECHOBERY_PLAYBACK_DEVICE=$PLAYBACK_DEVICE
-ECHOBERY_LISTEN_URL=http://${SERVER_HOST}:${SERVER_PORT}/${LISTEN_MOUNT}
-EOF
 
 if [[ "$LOCATION" == "yul" ]]; then
     sudo cp "$REPO_ROOT/systemd/echoberry.service" /etc/systemd/system/echoberry.service
@@ -65,7 +71,10 @@ else
     echo "YDF install complete. echoberry-listener.service and darkice.service are enabled."
 fi
 
-echo "==> Setting analogue audio output"
-amixer cset numid=3 1 || true
+AMIXER_CMD="$(python3 -c "import yaml; print(yaml.safe_load(open('$REPO_ROOT/config.yaml'))['install']['amixer_analog_cmd'])")"
+if [[ -n "$AMIXER_CMD" ]]; then
+    echo "==> Setting analogue audio output"
+    eval "$AMIXER_CMD" || true
+fi
 
 echo "Done."

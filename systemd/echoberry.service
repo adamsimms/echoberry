@@ -5,8 +5,9 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/pi/echoberry
-ExecStart=/usr/bin/python3 /home/pi/echoberry/src/main.py
+EnvironmentFile=/etc/echoberry/install.env
+WorkingDirectory=${ECHOBERY_ROOT}
+ExecStart=${ECHOBERY_VENV_PYTHON} ${ECHOBERY_ROOT}/src/main.py
 Restart=on-failure
 RestartSec=5
 

@@ -5,9 +5,10 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/pi/echoberry
+EnvironmentFile=-/etc/echoberry/install.env
 EnvironmentFile=/etc/echoberry/listener.env
-ExecStart=/bin/sh -c 'if command -v mpv >/dev/null 2>&1; then exec mpv --no-video --ao=alsa --audio-device=alsa/$ECHOBERY_PLAYBACK_DEVICE $ECHOBERY_LISTEN_URL; else exec mplayer -ao alsa:device=$ECHOBERY_PLAYBACK_DEVICE $ECHOBERY_LISTEN_URL; fi'
+WorkingDirectory=${ECHOBERY_ROOT}
+ExecStart=/bin/sh -c 'if command -v mpv >/dev/null 2>&1; then exec mpv --no-video --ao=alsa --audio-device=alsa/$(echo "$ECHOBERY_PLAYBACK_DEVICE" | tr = :) "$ECHOBERY_LISTEN_URL"; else exec mplayer -ao alsa:device=$ECHOBERY_PLAYBACK_DEVICE "$ECHOBERY_LISTEN_URL"; fi'
 Restart=on-failure
 RestartSec=5
 

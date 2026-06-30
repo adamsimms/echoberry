@@ -5,6 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
+EnvironmentFile=/etc/echoberry/install.env
 ExecStart=/usr/local/bin/darkice -c /etc/darkice.cfg
 Restart=on-failure
 RestartSec=5

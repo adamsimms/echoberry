@@ -4,6 +4,7 @@ import subprocess
 
 
 def kill_process_by_name(proc_name):
+    """Fallback cleanup for orphaned processes not tracked by the app."""
     try:
         result = subprocess.run(
             ["pgrep", "-x", proc_name],
@@ -16,7 +17,6 @@ def kill_process_by_name(proc_name):
         pids = _find_pids_fallback(proc_name)
 
     for pid in pids:
-        print("Found PID({}) of `{}`, killing...".format(pid, proc_name))
         try:
             os.kill(pid, signal.SIGKILL)
         except ProcessLookupError:
@@ -31,3 +31,15 @@ def _find_pids_fallback(proc_name):
         if proc_name in line:
             pids.append(int(line.split(None, 1)[0]))
     return pids
+
+
+def stop_processes(processes):
+    for proc in processes:
+        if proc.poll() is not None:
+            continue
+        proc.terminate()
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait(timeout=3)
