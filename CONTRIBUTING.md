@@ -2,7 +2,7 @@
 
 Thank you for helping preserve and improve this archival art-installation project.
 
-EchoBerry is a **completed 2021 installation** redeployed on Raspberry Pis with Icecast. Changes should respect the original behavior unless you are explicitly modernizing or fixing a bug.
+EchoBerry is a **2021 two-site audio work** connecting Montreal and Newfoundland through live streams of voice, forest ambience, and bell tones. Changes should respect the original experience unless you are explicitly modernizing or fixing a bug.
 
 ## Before you start
 

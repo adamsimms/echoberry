@@ -1,10 +1,14 @@
 # RPi Echo (EchoBerry)
 
-An interactive audio installation (2021): a magnetic switch on a Raspberry Pi triggers a ring tone, then streams live microphone audio mixed with forest ambience to an Icecast server. Two locations (YUL and YDF) can listen to each other's streams.
+*A two-site audio installation linking Montreal and Newfoundland through live sound.*
+
+EchoBerry (2021) connects distant places with voice, forest ambience, and a ringing bell. When someone opens the enclosure at Montreal, audio flows outward — mixed with the sound of the forest — while Newfoundland listens in and sends its own stream back. The result is a quiet, long-distance conversation between two Raspberry Pi installations bridged over Icecast.
 
 > **Note:** This project documents a completed art installation. It is maintained for archival and redeployment reference, not active product development.
 
 Design reference: [Figma — Echo](https://www.figma.com/file/Qq94FUIBFmaFRzEGjnB09grI/Echo?node-id=1%3A2)
+
+**Sites:** YUL — Montreal · YDF — Newfoundland
 
 ## Documentation
 
@@ -33,6 +37,7 @@ echoberry/
 ├── LICENSE
 ├── SECURITY.md
 ├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
 ├── src/
 │   ├── main.py           # YUL switch controller
 │   ├── config.py

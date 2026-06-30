@@ -1,6 +1,6 @@
 # Architecture
 
-EchoBerry connects two Raspberry Pi sites (YUL and YDF) through a central Icecast server. Opening a magnetic switch at YUL triggers local audio and layered streaming; YDF continuously streams and listens back to YUL.
+EchoBerry is a two-site audio installation: Montreal (YUL) and Newfoundland (YDF) share live streams through a central Icecast server. YUL is the interactive site — opening the enclosure plays a bell locally and sends voice mixed with looping forest ambience. YDF streams its own microphone continuously and plays the Montreal feed, so each location hears the other across distance.
 
 ## System overview
 
@@ -43,7 +43,7 @@ flowchart TB
 
 | Site | Code | Role |
 |------|------|------|
-| Montreal | `yul` | Interactive site — switch triggers ring, forest mix, remote listen |
+| Montreal | `yul` | Interactive site — opening the enclosure plays a bell, sends voice + forest mix, listens to YDF |
 | Newfoundland | `ydf` | Passive/listening site — streams locally, plays YUL on boot |
 
 Location-specific mounts and names live under `locations.*` in `config.yaml`.
