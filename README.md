@@ -6,6 +6,18 @@ An interactive audio installation (2021): a magnetic switch on a Raspberry Pi tr
 
 Design reference: [Figma — Echo](https://www.figma.com/file/Qq94FUIBFmaFRzEGjnB09grI/Echo?node-id=1%3A2)
 
+## Documentation
+
+| Doc | Audience |
+|-----|----------|
+| [README.md](README.md) | Deploy the installation |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Change code or docs |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community standards |
+| [SECURITY.md](SECURITY.md) | Report vulnerabilities, handle secrets |
+| [docs/architecture.md](docs/architecture.md) | How YUL/YDF, services, and streams fit together |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Common deploy and runtime issues |
+| [docs/documentation/README.md](docs/documentation/README.md) | Hardware photo captions |
+
 ## Components
 
 - Raspberry Pi 3 (or newer)
@@ -18,6 +30,9 @@ Design reference: [Figma — Echo](https://www.figma.com/file/Qq94FUIBFmaFRzEGjn
 echoberry/
 ├── config.example.yaml   # copy to config.yaml (gitignored)
 ├── requirements.txt
+├── LICENSE
+├── SECURITY.md
+├── CONTRIBUTING.md
 ├── src/
 │   ├── main.py           # YUL switch controller
 │   ├── config.py
@@ -25,6 +40,7 @@ echoberry/
 │   └── utils.py
 ├── scripts/
 │   ├── install.sh        # unified installer (yul | ydf)
+│   ├── install_ffmpeg.sh # legacy FFmpeg build
 │   ├── render_configs.py
 │   ├── validate_config.py
 │   └── render_icecast.sh
@@ -33,7 +49,12 @@ echoberry/
 ├── sounds/
 │   ├── ring.mp3
 │   └── forest_1h.mp3
-└── docs/documentation/
+├── docs/
+│   ├── architecture.md
+│   ├── troubleshooting.md
+│   └── documentation/    # wiring/install photos
+└── .github/
+    └── workflows/ci.yml
 ```
 
 ## Quick start
@@ -49,15 +70,27 @@ Never commit `config.yaml` — it contains secrets. The application refuses to s
 
 ### 2. Set up the Icecast server
 
-On your streaming server:
+On your streaming server, clone this repo and create a local config (same secrets the Pis will use):
 
 ```bash
-# Build Icecast-KH (or install Icecast2 from your distro)
+git clone https://github.com/adamsimms/echoberry
+cd echoberry
+cp config.example.yaml config.yaml
+# edit config.yaml: server.host, passwords, etc.
+```
+
+Build and run Icecast-KH (or install Icecast2 from your distro):
+
+```bash
 sudo apt-get install build-essential libxslt-dev libogg-dev libvorbis-dev
 git clone https://github.com/karlheyes/icecast-kh
 cd icecast-kh && ./configure && make && sudo make install
+```
 
-# Render and install config from this repo
+Render and install the server config from the echoberry repo:
+
+```bash
+cd ~/echoberry
 bash scripts/render_icecast.sh
 sudo cp conf/icecast.xml /usr/local/etc/icecast.xml
 icecast -c /usr/local/etc/icecast.xml
@@ -125,6 +158,8 @@ sudo systemctl status darkice echoberry          # YUL
 sudo systemctl status darkice echoberry-listener # YDF
 ```
 
+See [docs/architecture.md](docs/architecture.md) for a full system diagram.
+
 ### YUL dual streaming (intentional)
 
 At YUL, **both** `darkice` and the switch-triggered `ffmpeg` stream target the same mount. This is deliberate for the installation: darkice provides a continuous baseline mic feed, while opening the switch layers ring + forest ambience via ffmpeg.
@@ -140,6 +175,8 @@ At YUL, **both** `darkice` and the switch-triggered `ffmpeg` stream target the s
 
 Forest looping is controlled by `audio.forest_stream_loop` in `config.yaml` (default `-1` = infinite).
 
+If Git LFS is not installed: `git lfs install && git lfs pull`
+
 ## Configuration
 
 Key `config.yaml` fields:
@@ -147,37 +184,45 @@ Key `config.yaml` fields:
 | Key | Purpose |
 |-----|---------|
 | `location` | Active site (`yul` or `ydf`); synced by `install.sh` |
-| `server.*` | Icecast host, port, passwords |
-| `audio.alsa_device` | Capture device for mic/forest mix |
-| `audio.playback_device` | Local playback device (`hw=1.0`) |
+| `server.host` | Icecast server hostname or IP |
+| `server.port` | Icecast port (default `8000`) |
+| `server.source_password` | Password for stream sources (`darkice`, `ffmpeg`) |
+| `server.admin_user` / `server.admin_password` | Icecast admin UI credentials |
+| `gpio.switch_pin` | BCM pin for magnetic switch (default `4`) |
+| `audio.alsa_device` | ALSA capture device (e.g. `hw:1,0`) |
+| `audio.playback_device` | Local playback device (e.g. `hw=1.0`) |
+| `audio.ring_file` | Ring tone path (default `sounds/ring.mp3`) |
+| `audio.forest_file` | Forest ambience path (default `sounds/forest_1h.mp3`) |
+| `audio.forest_stream_loop` | ffmpeg loop count (`-1` = infinite) |
 | `install.repo_root` | Install path (auto-set by `install.sh`) |
 | `install.amixer_analog_cmd` | Pi analogue audio routing command |
+
+Copy from `config.example.yaml` and see inline comments for location-specific mount names.
 
 ## Security
 
 See [SECURITY.md](SECURITY.md). Summary:
 
 - Do not commit private keys, PEM files, or `config.yaml`.
-- Rotate credentials that were previously in git.
-- Purge `Echo-Server.pem` from `master` history if the repo was ever public.
+- Rotate credentials that were previously in git (especially the old `Echo-Server.pem` key).
+- `Echo-Server.pem` has been removed from the tree and purged from `master` git history.
 
 ## Development
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow. Quick checks:
+
 ```bash
-pip install PyYAML mutagen
+pip install PyYAML
 python3 -m py_compile src/*.py scripts/*.py
 python3 scripts/validate_config.py
+shellcheck scripts/*.sh   # optional, matches CI
 ```
 
-CI runs the same checks on push/PR.
+CI runs compile, config validation, and shellcheck on push/PR. GPIO and audio streaming require a Raspberry Pi to test fully.
 
 ## Legacy install
 
 `scripts/install_ffmpeg.sh` builds FFmpeg from source for very old ARM systems. Modern installs use `apt-get install ffmpeg` via `scripts/install.sh`.
-
-## Documentation photos
-
-See [docs/documentation/README.md](docs/documentation/README.md) for captions.
 
 ## License
 
