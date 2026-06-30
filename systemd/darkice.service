@@ -1,0 +1,13 @@
+[Unit]
+Description=DarkIce live audio streamer
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/darkice -c /etc/darkice.cfg
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
