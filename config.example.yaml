@@ -1,0 +1,37 @@
+# Copy this file to config.yaml and edit before deploying.
+# config.yaml is gitignored and must not be committed.
+
+location: yul  # yul (Montreal) | ydf (Newfoundland)
+
+server:
+  host: icecast.example.com
+  port: 8000
+  source_password: CHANGE_ME
+  admin_user: admin
+  admin_password: CHANGE_ME
+
+gpio:
+  switch_pin: 4
+
+audio:
+  alsa_device: hw:1,0
+  playback_device: hw=1.0
+  ring_file: sounds/ring.mp3
+  forest_file: sounds/forest_1h.mp3
+  forest_stream_loop: -1  # -1 = loop forest track indefinitely during ffmpeg stream
+
+install:
+  repo_root: /home/pi/echoberry
+  amixer_analog_cmd: amixer cset numid=3 1
+
+locations:
+  yul:
+    stream_mount: echoberry-yul
+    listen_mount: echoberry-ydf
+    darkice_name: Echoberry-YUL
+    darkice_description: EchoBerry YUL @ Montreal
+  ydf:
+    stream_mount: echoberry-ydf
+    listen_mount: echoberry-yul
+    darkice_name: Echoberry-YDF
+    darkice_description: EchoBerry YDF @ Newfoundland
