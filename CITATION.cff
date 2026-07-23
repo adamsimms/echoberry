@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: EchoBerry
+authors:
+  - family-names: Simms
+    given-names: Adam
+    email: hello@adamsimms.xyz
+abstract: >-
+  Two-site audio art installation linking Montreal and Newfoundland
+  through live forest ambience and voice echos.
+license: MIT
+date-released: "2021-01-01"
+url: "https://github.com/adamsimms/echoberry"
+repository-code: "https://github.com/adamsimms/echoberry"
+keywords:
+  - raspberry-pi
+  - audio
+  - installation
+  - icecast
