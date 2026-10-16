@@ -1,4 +1,4 @@
-# RPi Echo (EchoBerry)
+Echoberry
 
 *A two-site audio installation linking Montreal and Newfoundland through live sound.*
 
