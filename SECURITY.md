@@ -19,9 +19,9 @@ Please do not open public issues for undisclosed vulnerabilities.
 **Remediation status:**
 
 - Removed from the repository tree
-- Purged from `master` git history via `git filter-repo`
+- Purged from `main` git history via `git filter-repo`
 
-**If you cloned before the purge**, fetch the latest `master` and reset your local copy. Anyone who may have accessed the old key should:
+**If you cloned before the purge**, fetch the latest `main` and reset your local copy. Anyone who may have accessed the old key should:
 
 1. Assume the key is compromised
 2. Revoke and replace it on the server

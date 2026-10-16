@@ -210,7 +210,7 @@ See [SECURITY.md](SECURITY.md). Summary:
 
 - Do not commit private keys, PEM files, or `config.yaml`.
 - Rotate credentials that were previously in git (especially the old `Echo-Server.pem` key).
-- `Echo-Server.pem` has been removed from the tree and purged from `master` git history.
+- `Echo-Server.pem` has been removed from the tree and purged from `main` git history.
 
 ## Development
 

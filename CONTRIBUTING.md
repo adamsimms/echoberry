@@ -78,7 +78,7 @@ sudo .venv/bin/python src/main.py
 
 ## Branch and commit conventions
 
-- Branch from `master`: `your-name/short-description` or `cursor/...` for agents
+- Branch from `main`: `your-name/short-description` or `cursor/...` for agents
 - Keep commits focused; use complete sentences in commit messages
 - One logical change per PR when possible
 

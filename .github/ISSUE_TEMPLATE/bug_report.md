@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         Thanks for reporting an issue. **Do not include passwords or `config.yaml` contents.**
-        See [troubleshooting.md](https://github.com/adamsimms/echoberry/blob/master/docs/troubleshooting.md) first.
+        See [troubleshooting.md](https://github.com/adamsimms/echoberry/blob/main/docs/troubleshooting.md) first.
 
   - type: dropdown
     id: location
